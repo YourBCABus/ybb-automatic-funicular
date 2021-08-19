@@ -25,8 +25,7 @@ def main():
         if message["type"] == "message":
             data = json.loads(message["data"])
             school = db.schools.find_one({"_id": ObjectId(data["schoolID"])})
-            # if school and school["public_scopes"] and "read" in school["public_scopes"]:
-            if school:
+            if school and school["public_scopes"] and "read" in school["public_scopes"]:
                 now = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
                 school_id = data["schoolID"]
                 bus_id = data["busID"]
