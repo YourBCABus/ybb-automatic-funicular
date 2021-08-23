@@ -31,20 +31,31 @@ def main():
                 bus_id = data["busID"]
                 bus_name = data["busName"]
                 boarding_area = data["newBoardingArea"]
+
+                data = {
+                    "bus": bus_id,
+                    "boarding_area": boarding_area,
+                    "location": boarding_area,
+                    "invalidate_time": data["invalidateTime"],
+                    "time": now
+                }
+                notification = messaging.Notification(
+                    title=f"{bus_name} boarding at {boarding_area}",
+                    body=f"The bus for \"{bus_name}\" is now at {boarding_area}."
+                )
+                apns = messaging.APNSConfig(payload=messaging.APNSPayload(messaging.Aps(sound="default")))
                 message = messaging.Message(
-                    data={
-                        "bus": bus_id,
-                        "boarding_area": boarding_area,
-                        "location": boarding_area,
-                        "invalidate_time": data["invalidateTime"],
-                        "time": now
-                    },
-                    notification=messaging.Notification(
-                        title=f"{bus_name} boarding at {boarding_area}",
-                        body=f"The bus for \"{bus_name}\" is now at {boarding_area}."
-                    ),
-                    apns=messaging.APNSConfig(payload=messaging.APNSPayload(messaging.Aps(sound="default"))),
+                    data=data,
+                    notification=notification,
+                    apns=apns,
                     topic=f"school.{school_id}.bus.{bus_id}"
+                )
+                messaging.send(message)
+                message = messaging.Message(
+                    data=data,
+                    notification=notification,
+                    apns=apns,
+                    topic=f"bus.{bus_id}"
                 )
                 messaging.send(message)
 
